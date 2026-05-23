@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .label {
+    @apply text-xs font-regular mb-[9px] text-text-primary;
+  }
+
+  .input {
+    @apply h-12 px-4 border border-gray-800 rounded-lg text-text-primary text-base font-regular;
+  }
+}
