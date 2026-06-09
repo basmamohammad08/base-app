@@ -75,12 +75,11 @@ export let palette = {
   },
 
   primary: {
-    pressed: "#92005D",
     default: "#CD006A",
     hover: "#F761A1",
-    bg: "#FDE4EF",
-
+    pressed: "#92005D",
     disabled: "#FABCD7",
+    bg: "#FDE4EF",
   },
 
   text: {
@@ -107,11 +106,6 @@ export let palette = {
     pressed: "#92005D",
     disabled: "#CBCBCB",
     bg: "#FDE4EF",
-  },
-
-  poweredBy: {
-    primary: "#1A215E",
-    secondary: "#00DFAC",
   },
 };
 
