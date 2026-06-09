@@ -110,7 +110,7 @@ export function Toast({
       style={[container, { opacity, transform: [{ translateY }, { scale }] }]}
     >
       {leftIcon}
-      <Text className="flex-1 textSmallRegular text-white text-left">
+      <Text className="flex-1 textSmallRegular text-white text-start">
         {type === "error" && !title
           ? "Something Went Wrong, please try again"
           : title}

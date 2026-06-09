@@ -4,7 +4,7 @@
 
 @layer components {
   .label {
-    @apply text-xs font-regular mb-[9px] text-text-primary;
+    @apply text-xs text-start font-regular mb-[9px] text-text-primary;
   }
 
   .input {

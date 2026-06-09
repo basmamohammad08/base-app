@@ -2,6 +2,7 @@ import * as React from "react";
 import {
   Animated,
   Easing,
+  I18nManager,
   Pressable,
   StyleProp,
   StyleSheet,
@@ -33,9 +34,14 @@ export function Toggle({ isOn, onToggle, style }: ToggleProps) {
     }).start();
   }, [isOn]);
 
+  const thumbOffPosition = THUMB_PADDING;
+  const thumbOnPosition = THUMB_PADDING + THUMB_TRAVEL;
+
   const thumbTranslateX = animatedValue.interpolate({
     inputRange: [0, 1],
-    outputRange: [THUMB_PADDING, THUMB_PADDING + THUMB_TRAVEL],
+    outputRange: I18nManager.isRTL
+      ? [-thumbOffPosition, -thumbOnPosition]
+      : [thumbOffPosition, thumbOnPosition],
   });
 
   const trackColor = animatedValue.interpolate({
@@ -92,6 +98,7 @@ const styles = StyleSheet.create({
     opacity: 0.85,
   },
   thumb: {
+    alignSelf: "flex-start",
     width: THUMB_SIZE,
     height: THUMB_SIZE,
     borderRadius: THUMB_SIZE / 2,

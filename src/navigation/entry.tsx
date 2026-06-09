@@ -5,6 +5,7 @@ import { RadioButton } from "@/components/radioButton";
 import { Timer, TimerRef } from "@/components/timer";
 import { toast } from "@/components/toast";
 import { Toggle } from "@/components/toggle";
+import { I18nProvider, useLocaleToggle, useTranslation } from "@/i18n";
 import { ThemeProvider, useThemeToggle } from "@/theme";
 import React, { useState } from "react";
 import { Text, View } from "react-native";
@@ -19,28 +20,32 @@ function AppContent() {
   const timerRef = React.useRef<TimerRef>(null);
   const [checked, setIsChecked] = useState(false);
   const { toggleTheme, isDark } = useThemeToggle();
+  const { toggleLocale, isArabic } = useLocaleToggle();
+  const { t } = useTranslation();
 
   return (
     <View className="px-4" style={{ marginTop: insets.top }}>
       <Button
-        title="press here"
+        title="press Here"
         onPress={() => {
           toast.show({ title: "this is a toast", type: "error" });
         }}
       />
-      <TextInput placeholder="write here" label="this is label" required />
+      <TextInput placeholder="write Here" label="this is label" required />
       <Timer ref={timerRef} timerInitalValue={45}>
         {(timer) => (
           <Text
             className={`${timer > 0 ? "text-text-secondary" : "text-primary-default"} textLgSemiBold`}
           >
-            Resend code{timer > 0 ? ` (${timer})` : ""}
+            resendCode
+            {timer > 0 ? ` (${timer})` : ""}
           </Text>
         )}
       </Timer>
       <Checkbox checked={checked} onPress={() => setIsChecked(!checked)} />
       <RadioButton checked={checked} onPress={() => setIsChecked(!checked)} />
       <Toggle isOn={isDark} onToggle={toggleTheme} />
+      <Toggle isOn={isArabic} onToggle={toggleLocale} />
     </View>
   );
 }
@@ -48,10 +53,12 @@ function AppContent() {
 export function Entry() {
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-      <ThemeProvider>
-        <AppContent />
-        <toast.MountPoint />
-      </ThemeProvider>
+      <I18nProvider>
+        <ThemeProvider>
+          <AppContent />
+          <toast.MountPoint />
+        </ThemeProvider>
+      </I18nProvider>
     </SafeAreaProvider>
   );
 }
