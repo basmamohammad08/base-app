@@ -1,43 +1,16 @@
 import * as React from "react";
-import {
-  ActivityIndicator,
-  Pressable,
-  StyleProp,
-  StyleSheet,
-  ViewStyle,
-} from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet } from "react-native";
 import { useStyle } from "react-native-style-utilities";
 
-import { palette } from "@/theme";
-import { ButtonProps } from "./button";
-import { config } from "./config";
+import { resolveButtonStyle } from "./registry";
+import type { BaseButtonProps } from "./types";
 
-export type BaseButtonProps = {
-  children:
-    | React.ReactNode
-    | ((props: { pressed: boolean; color: string }) => React.ReactNode);
-  type: NonNullable<ButtonProps["type"]>;
-  style?: StyleProp<ViewStyle>;
-  containerPadding?: number;
-  testID?: string;
-} & Pick<ButtonProps, "disabled" | "isLoading" | "onPress">;
-
-function getForegroundColor({
-  disabled,
-  pressed,
-  type,
-}: { pressed: boolean; outlined?: boolean } & Pick<
-  BaseButtonProps,
-  "disabled" | "type"
->) {
-  if (disabled) return palette.gray500;
-  return pressed ? config[type].selectedColor : config[type].color;
-}
+export type { BaseButtonProps } from "./types";
 
 export function BaseButton({
   children,
   containerPadding,
-  disabled,
+  disabled = false,
   isLoading,
   onPress,
   type,
@@ -45,12 +18,17 @@ export function BaseButton({
   testID,
 }: BaseButtonProps) {
   const containerStyle = useStyle(
-    () => ({
-      backgroundColor: disabled
-        ? config[type].disabledBackgroundColor
-        : config[type].backgroundColor,
-      padding: containerPadding ?? 12,
-    }),
+    () => {
+      const { backgroundColor } = resolveButtonStyle(type, {
+        pressed: false,
+        disabled,
+      });
+
+      return {
+        backgroundColor,
+        padding: containerPadding ?? 12,
+      };
+    },
     [type, disabled, containerPadding],
   );
 
@@ -69,7 +47,8 @@ export function BaseButton({
       style={[styles.container, containerStyle, style]}
     >
       {({ pressed }) => {
-        const color = getForegroundColor({ pressed, disabled, type });
+        const { color } = resolveButtonStyle(type, { pressed, disabled });
+
         return (
           <>
             {isLoading && (

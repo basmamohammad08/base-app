@@ -1,4 +1,4 @@
-import { syncButtonConfigFromPalette } from "@/components/button/config";
+import { resolveButtonVariants } from "@/components/button";
 import { StatusBar } from "expo-status-bar";
 import { useColorScheme, vars } from "nativewind";
 import * as React from "react";
@@ -38,7 +38,7 @@ export function ThemeProvider({ children }: Props) {
 
   React.useLayoutEffect(() => {
     applyPaletteTheme(themeName);
-    syncButtonConfigFromPalette();
+    resolveButtonVariants(activePalette);
   }, [themeName]);
 
   const themeVars = React.useMemo(

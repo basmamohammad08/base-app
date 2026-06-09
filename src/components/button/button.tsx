@@ -1,29 +1,12 @@
 import * as React from "react";
-import {
-  StyleProp,
-  StyleSheet,
-  Text,
-  TextStyle,
-  View,
-  ViewStyle,
-} from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { useStyle } from "react-native-style-utilities";
 
 import { fonts } from "../../theme";
 import { BaseButton } from "./BaseButton";
+import type { ButtonProps } from "./types";
 
-export type ButtonProps = {
-  onPress?: () => void;
-  title: string;
-  disabled?: boolean;
-  leftIcon?: (color: string) => React.ReactNode;
-  rightIcon?: (color: string) => React.ReactNode;
-  isLoading?: boolean;
-  type?: "primary" | "secondary" | "tertiary";
-  style?: StyleProp<ViewStyle>;
-  containerPadding?: number;
-  textStyle?: StyleProp<TextStyle>;
-};
+export type { ButtonProps } from "./types";
 
 export function Button({
   onPress,
