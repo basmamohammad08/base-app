@@ -1,3 +1,4 @@
+import { palette } from "@/theme";
 import * as React from "react";
 import {
   BlurEvent,
@@ -51,11 +52,11 @@ export function TextInput({
           (error?.length ?? 0) > 0 || isError
             ? "border-red-500"
             : focused
-              ? "border-black"
-              : "border-gray-400"
+              ? "border-input-borderFocused"
+              : "border-input-border"
         }`}
         style={inputStyle}
-        placeholderTextColor="rgba(255,255,255, .5)"
+        placeholderTextColor={palette.input.placeholder}
         onFocus={handleOnFocus}
         onBlur={handleOnBlur}
         textAlignVertical={props.multiline ? "top" : props.textAlignVertical}

@@ -8,6 +8,6 @@
   }
 
   .input {
-    @apply h-12 px-4 border border-gray-800 rounded-lg text-text-primary text-base font-regular;
+    @apply h-12 px-4 border border-input-border rounded-lg bg-background-surface text-text-primary text-base font-regular;
   }
 }

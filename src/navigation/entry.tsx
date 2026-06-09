@@ -5,6 +5,7 @@ import { RadioButton } from "@/components/radioButton";
 import { Timer, TimerRef } from "@/components/timer";
 import { toast } from "@/components/toast";
 import { Toggle } from "@/components/toggle";
+import { ThemeProvider, useThemeToggle } from "@/theme";
 import React, { useState } from "react";
 import { Text, View } from "react-native";
 import {
@@ -17,9 +18,10 @@ function AppContent() {
   const insets = useSafeAreaInsets();
   const timerRef = React.useRef<TimerRef>(null);
   const [checked, setIsChecked] = useState(false);
+  const { toggleTheme, isDark } = useThemeToggle();
 
   return (
-    <View style={{ marginTop: insets.top }}>
+    <View className="px-4" style={{ marginTop: insets.top }}>
       <Button
         title="press here"
         onPress={() => {
@@ -30,7 +32,7 @@ function AppContent() {
       <Timer ref={timerRef} timerInitalValue={45}>
         {(timer) => (
           <Text
-            className={`${timer > 0 ? "text-gray-500" : "text-primary-default"} textLgSemiBold`}
+            className={`${timer > 0 ? "text-text-secondary" : "text-primary-default"} textLgSemiBold`}
           >
             Resend code{timer > 0 ? ` (${timer})` : ""}
           </Text>
@@ -38,7 +40,7 @@ function AppContent() {
       </Timer>
       <Checkbox checked={checked} onPress={() => setIsChecked(!checked)} />
       <RadioButton checked={checked} onPress={() => setIsChecked(!checked)} />
-      <Toggle isOn={checked} onToggle={() => setIsChecked(!checked)} />
+      <Toggle isOn={isDark} onToggle={toggleTheme} />
     </View>
   );
 }
@@ -46,8 +48,10 @@ function AppContent() {
 export function Entry() {
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-      <AppContent />
-      <toast.MountPoint />
+      <ThemeProvider>
+        <AppContent />
+        <toast.MountPoint />
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }
