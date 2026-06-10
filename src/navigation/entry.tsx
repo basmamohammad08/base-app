@@ -1,12 +1,13 @@
 import { Button } from "@/components/button/button";
 import { Checkbox } from "@/components/checkBox";
 import { TextInput } from "@/components/input/textInput";
+import { PaginatedFlatList } from "@/components/PaginatedFlatList";
 import { RadioButton } from "@/components/radioButton";
 import { Timer, TimerRef } from "@/components/timer";
 import { toast } from "@/components/toast";
 import { Toggle } from "@/components/toggle";
 import { I18nProvider, useLocaleToggle, useTranslation } from "@/i18n";
-import { QueryProvider } from "@/query";
+import { QueryProvider, useInfinitePosts } from "@/query";
 import { ThemeProvider, useThemeToggle } from "@/theme";
 import React, { useState } from "react";
 import { Text, View } from "react-native";
@@ -23,6 +24,7 @@ function AppContent() {
   const { toggleTheme, isDark } = useThemeToggle();
   const { toggleLocale, isArabic } = useLocaleToggle();
   const { t } = useTranslation();
+  const postsQuery = useInfinitePosts();
 
   return (
     <View className="px-4" style={{ marginTop: insets.top }}>
@@ -47,6 +49,23 @@ function AppContent() {
       <RadioButton checked={checked} onPress={() => setIsChecked(!checked)} />
       <Toggle isOn={isDark} onToggle={toggleTheme} />
       <Toggle isOn={isArabic} onToggle={toggleLocale} />
+      <View className="mt-4 h-80">
+        <PaginatedFlatList
+          query={postsQuery}
+          getItemsFromPage={(page) => page.items}
+          keyExtractor={(item) => String(item.id)}
+          renderItem={({ item }) => (
+            <View className="mb-3 rounded-lg bg-background-surface p-4">
+              <Text className="text-text-primary textBaseBold" numberOfLines={1}>
+                {item.title}
+              </Text>
+              <Text className="mt-1 text-text-secondary textSmallRegular" numberOfLines={2}>
+                {item.body}
+              </Text>
+            </View>
+          )}
+        />
+      </View>
     </View>
   );
 }

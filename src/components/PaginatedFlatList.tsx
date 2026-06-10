@@ -1,4 +1,5 @@
 import type { InfiniteData, UseInfiniteQueryResult } from "@tanstack/react-query";
+import type { ComponentType } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -7,17 +8,21 @@ import {
   type FlatListProps,
 } from "react-native";
 
+import { ListSkeleton } from "@/components/skeleton";
+
 type PaginatedFlatListProps<TItem, TPage> = Omit<
   FlatListProps<TItem>,
   "data" | "onEndReached" | "refreshing" | "onRefresh"
 > & {
   query: UseInfiniteQueryResult<InfiniteData<TPage>>;
   getItemsFromPage: (page: TPage) => readonly TItem[];
+  ListSkeletonComponent?: ComponentType;
 };
 
 export function PaginatedFlatList<TItem, TPage>({
   query,
   getItemsFromPage,
+  ListSkeletonComponent = ListSkeleton,
   ...flatListProps
 }: PaginatedFlatListProps<TItem, TPage>) {
   const {
@@ -33,11 +38,7 @@ export function PaginatedFlatList<TItem, TPage>({
   const items = data?.pages.flatMap(getItemsFromPage) ?? [];
 
   if (isPending) {
-    return (
-      <View className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" />
-      </View>
-    );
+    return <ListSkeletonComponent />;
   }
 
   return (
