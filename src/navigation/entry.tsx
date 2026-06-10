@@ -6,6 +6,7 @@ import { Timer, TimerRef } from "@/components/timer";
 import { toast } from "@/components/toast";
 import { Toggle } from "@/components/toggle";
 import { I18nProvider, useLocaleToggle, useTranslation } from "@/i18n";
+import { QueryProvider } from "@/query";
 import { ThemeProvider, useThemeToggle } from "@/theme";
 import React, { useState } from "react";
 import { Text, View } from "react-native";
@@ -53,12 +54,14 @@ function AppContent() {
 export function Entry() {
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-      <I18nProvider>
-        <ThemeProvider>
-          <AppContent />
-          <toast.MountPoint />
-        </ThemeProvider>
-      </I18nProvider>
+      <QueryProvider>
+        <I18nProvider>
+          <ThemeProvider>
+            <AppContent />
+            <toast.MountPoint />
+          </ThemeProvider>
+        </I18nProvider>
+      </QueryProvider>
     </SafeAreaProvider>
   );
 }

@@ -4,6 +4,7 @@ export const STORAGE_IDS = {
   THEME: "theme.storage",
   LANGUAGE: "language.storage",
   USER: "user.storage",
+  QUERY: "query.storage",
 } as const;
 
 // AES-256 key (max 32 bytes). Protects token at rest on disk; not a substitute for server-side auth.
