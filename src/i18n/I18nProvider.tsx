@@ -1,3 +1,4 @@
+import { languageCache } from "@/cache";
 import * as React from "react";
 import { DevSettings } from "react-native";
 import { I18nextProvider } from "react-i18next";
@@ -39,6 +40,7 @@ export function I18nProvider({ children }: Props) {
 
   const setLocale = React.useCallback(async (nextLocale: SupportedLocale) => {
     await i18n.changeLanguage(nextLocale);
+    languageCache.set(nextLocale);
     const directionChanged = applyDirection(nextLocale);
     setLocaleState(nextLocale);
 

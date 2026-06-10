@@ -1,3 +1,4 @@
+import { languageCache } from "@/cache";
 import * as Localization from "expo-localization";
 import i18n from "i18next";
 import { I18nManager } from "react-native";
@@ -15,6 +16,11 @@ const resources = {
 } as const;
 
 function resolveInitialLocale(): SupportedLocale {
+  const cachedLocale = languageCache.get();
+  if (cachedLocale) {
+    return cachedLocale;
+  }
+
   if (I18nManager.isRTL) {
     return "ar";
   }
