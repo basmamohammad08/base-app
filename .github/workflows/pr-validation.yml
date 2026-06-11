@@ -1,0 +1,135 @@
+name: PR Validation
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      # TypeScript type checking
+      - name: TypeScript type check
+        run: npx tsc --noEmit
+        continue-on-error: true
+
+      # Install reviewdog
+      - name: Install reviewdog
+        uses: reviewdog/action-setup@v1
+        with:
+          reviewdog_version: latest
+
+      # ESLint via reviewdog (posts inline PR comments)
+      - name: ESLint via reviewdog
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npx eslint . \
+            --ext .js,.jsx,.ts,.tsx \
+            --format checkstyle 2>/dev/null | \
+          reviewdog -f=checkstyle \
+            -name="ESLint" \
+            -reporter=github-pr-review \
+            -filter-mode=diff_context \
+            -fail-on-error=false
+
+      # Semgrep – React Native + TypeScript rulesets
+      - name: Semgrep
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/typescript
+            p/react
+            p/javascript
+            p/secrets
+            p/security-audit
+            p/owasp-top-ten
+        continue-on-error: true
+
+      # npm audit – catch vulnerable dependencies
+      - name: npm audit
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+      # Sentry – check for active unresolved issues
+      - name: Install Sentry CLI
+        run: npm install -g @sentry/cli
+
+      - name: Sentry release & issue check
+        id: sentry_check
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+        run: |
+          VERSION="pr-${{ github.event.pull_request.number }}-$(git rev-parse --short HEAD)"
+          sentry-cli releases new "$VERSION"
+          sentry-cli releases set-commits "$VERSION" --auto
+
+          ISSUES=$(curl -s "https://sentry.io/api/0/projects/$SENTRY_ORG/$SENTRY_PROJECT/issues/?query=is:unresolved&limit=10" \
+            -H "Authorization: Bearer $SENTRY_AUTH_TOKEN" | \
+            jq '[.[] | {title: .title, culprit: .culprit, permalink: .permalink}]')
+
+          echo "issues=$ISSUES" >> $GITHUB_OUTPUT
+
+      # Post Sentry summary as PR comment
+      - name: Post Sentry summary comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const sentryIssues = ${{ steps.sentry_check.outputs.issues || '[]' }};
+
+            let body = `## 🔍 Sentry – Active Issues\n\n`;
+            if (sentryIssues.length === 0) {
+              body += `✅ No unresolved Sentry issues detected.`;
+            } else {
+              sentryIssues.forEach(issue => {
+                body += `- **${issue.title}** — \`${issue.culprit}\` [View in Sentry →](${issue.permalink})\n`;
+              });
+            }
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+            });
+
+            const existing = comments.find(c =>
+              c.user.login === 'github-actions[bot]' &&
+              c.body.includes('Sentry – Active Issues')
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body
+              });
+            }
